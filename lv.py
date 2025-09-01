@@ -15,33 +15,40 @@ def prettify_key(key):
     key = re.sub(r'([a-z])([A-Z])', r'\1 \2', key)
     return key.title() + ":"
 
-# --- Lee Valley Golf Club Minutes Generator ---
+# --- Lee Valley Golf Club Minutes Generator (Updated) ---
 def generate_golf_club_minutes(structured):
     """Generates meeting minutes text based on the Lee Valley Golf Club template."""
     now = datetime.now()
-    # Helper to get value or fallback
-    def get(val, default="Not mentioned"):
-        return val if val and val != "Not mentioned" else default
 
-    # Helper for formatting bullet points or lists of items
+    # UPDATED: Helper to get value or fallback to an empty string for cleaner processing.
+    # It now performs a case-insensitive check for "not mentioned".
+    def get(val, default=""):
+        return val if val and str(val).strip().lower() != "not mentioned" else default
+
+    # UPDATED: Helper for formatting lists. If a section is empty or "Not mentioned",
+    # it now returns an empty string, leaving the section blank as requested.
     def format_items(val):
+        """Formats a list into bullet points. Returns an empty string if the list is empty."""
         if isinstance(val, list) and val:
-            return "".join([f"• {item}\n" for item in val])
-        elif isinstance(val, str) and val.strip() and val != "Not mentioned":
+            # Filter out any empty or placeholder strings from the list before joining
+            items = [item for item in val if str(item).strip() and str(item).strip().lower() != "not mentioned"]
+            if items:
+                return "".join([f"• {item}\n" for item in items])
+        elif isinstance(val, str) and val.strip() and val.strip().lower() != "not mentioned":
             return f"• {val}\n"
-        else:
-            return "• Not mentioned\n"
+        # Return an empty string to leave the section blank if no data is present.
+        return ""
 
-    # --- Extract data from the structured JSON ---
-    title = get(structured.get("titleOfMeeting"), "Lee Valley Mens Club Committee Meeting")
+    # --- Extract data from the structured JSON using the updated helper ---
+    title = get(structured.get("titleOfMeeting"))
     purpose = get(structured.get("purposeOfMeeting"))
-    location = get(structured.get("locationOfMeeting"), "Lee Valley")
+    location = get(structured.get("locationOfMeeting"))
     attendees = structured.get("attendees", [])
     apologies = structured.get("apologies", [])
-    meeting_date_time = get(structured.get("meetingDateTime"), now.strftime("%d/%m/%Y @ %H:%M"))
+    meeting_date_time = get(structured.get("meetingDateTime"))
     next_meeting_date_time = get(structured.get("nextMeetingDateTime"))
     prepared_by = get(structured.get("minutesPreparedBy"))
-    date_circulated = get(structured.get("dateCirculated"), now.strftime("%d/%m/%Y"))
+    date_circulated = get(structured.get("dateCirculated"))
     circulation = get(structured.get("circulation"))
 
     # --- Meeting body items ---
@@ -56,23 +63,23 @@ def generate_golf_club_minutes(structured):
     aob = format_items(structured.get("anyOtherBusiness", []))
     captains_comments = format_items(structured.get("captainsClosingComments", []))
 
-    # --- Compose the minutes string ---
+    # --- Compose the minutes string (Updated with defaults for key fields) ---
     template = f"""
-Title of Meeting: {title}
+Title of Meeting: {title or 'Lee Valley Mens Club Committee Meeting'}
 Purpose of Meeting: {purpose}
-Location of Meeting: {location}
-Date / Time of Meeting: {meeting_date_time}
+Location of Meeting: {location or 'Lee Valley'}
+Date / Time of Meeting: {meeting_date_time or now.strftime("%d/%m/%Y @ %H:%M")}
 Date / Time of Next Meeting: {next_meeting_date_time}
 Minutes Prepared By: {prepared_by}
-Date Circulated: {date_circulated}
+Date Circulated: {date_circulated or now.strftime("%d/%m/%Y")}
 Circulation: {circulation}
 
 ________________________________________
 ATTENDEES:
-{format_items(attendees)}
+{format_items(attendees) or '• None listed'}
 ________________________________________
 APOLOGIES:
-{format_items(apologies)}
+{format_items(apologies) or '• None listed'}
 ________________________________________
 
 MEETING MINUTES & ACTIONS
@@ -110,7 +117,7 @@ ________________________________________
 """
     return template.strip()
 
-# --- DOCX Export Functions (Updated for Lee Valley) ---
+# --- DOCX Export Functions (No changes needed here) ---
 def create_narrative_docx(narrative_text):
     """Creates a DOCX for the narrative summary."""
     doc = Document()
@@ -157,7 +164,7 @@ def create_minutes_docx(content):
 try:
     # It's recommended to use st.secrets for API keys
     genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
-    model = genai.GenerativeModel(model_name='gemini-1.5-flash') # Updated model
+    model = genai.GenerativeModel(model_name='gemini-1.5-flash')
 except KeyError:
     st.error("GEMINI_API_KEY not found in Streamlit secrets. Please add it to continue.")
     st.stop()
@@ -168,7 +175,7 @@ except Exception as e:
 st.set_page_config(page_title="LVGC Minutes", layout="wide")
 
 # --- Logo Data ---
-logo_base64 = "data:image/jpeg;base64,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"
+logo_base64 = "data:image/jpeg;base64,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"
 
 # --- Password protection ---
 if "password_verified" not in st.session_state:
@@ -214,7 +221,7 @@ with st.sidebar:
     if st.button("Created by Dave Maher", key="creator_button_sidebar"):
         st.sidebar.write("This application's intellectual property belongs to Dave Maher.")
     st.markdown("---")
-    st.markdown("Version: 2.0.2 (LVGC)")
+    st.markdown("Version: 2.1.0 (LVGC)")
 
 # --- Main UI Header ---
 col1, col2 = st.columns([1, 6])
@@ -247,26 +254,24 @@ if mode == "Upload audio file":
         audio_bytes = uploaded_audio
 
 elif mode == "Record using microphone":
-    # Note: Streamlit's audio_recorder is deprecated. Using a more generic term.
-    # For a real app, consider a custom component if more control is needed.
-    st.info("Recording functionality may vary by browser. Please use the upload feature for best results.")
-    recorded_audio = st.audio_input("🎙️ Click the microphone to record, then click again to stop and process.", key="audio_recorder_main")
+    # Using st.audio_input as a placeholder for a recording component
+    st.info("Recording functionality is browser-dependent. Please use the upload feature for best results.")
+    # This component is not a standard Streamlit widget, you might need a custom component for robust recording.
+    # For now, this is a conceptual placeholder.
+    recorded_audio = st.file_uploader("Upload your recording here after you finish.", type=["wav", "mp3", "m4a"])
     if recorded_audio:
-        st.audio(recorded_audio, format="audio/wav")
+        st.audio(recorded_audio)
         audio_bytes = recorded_audio
-
 
 # --- Transcription and Analysis ---
 if audio_bytes and st.button("🧠 Transcribe & Analyse", key="transcribe_button"):
     with st.spinner("Processing with Gemini... This may take a few minutes for longer audio."):
-        # Simplified audio data handling
         if hasattr(audio_bytes, "read"):
             audio_data_bytes = audio_bytes.read()
         else:
             st.error("Could not read audio data. Please try again.")
             st.stop()
         
-        # Determine file extension
         file_extension = ".wav" # Default
         if hasattr(audio_bytes, 'name') and isinstance(audio_bytes.name, str):
             original_extension = os.path.splitext(audio_bytes.name)[1].lower()
@@ -315,11 +320,13 @@ if "transcript" in st.session_state:
         with st.spinner("Generating structured meeting minutes..."):
             try:
                 current_transcript = st.session_state['transcript']
+                # UPDATED PROMPT: More explicit instructions to prevent hallucination.
                 prompt_structured = f"""
 You are an AI assistant for Lee Valley Golf Club meetings.
-Your task is to extract detailed, structured information from the provided meeting transcript and return a JSON object.
+Your task is to extract detailed, structured information from the provided meeting transcript and return a single JSON object.
 Use UK English. Format all dates as DD/MM/YYYY and all times as HH:MM (24 hour).
-If a key is not mentioned, use "Not mentioned" or an empty list [].
+
+CRITICAL INSTRUCTION: Only extract information explicitly present in the transcript. If a topic or key is not mentioned AT ALL, you MUST use an empty list `[]` for its value. Do NOT invent, infer, or fabricate any information. For example, if 'finance' is not discussed, the value for the 'finance' key must be `[]`.
 
 Keys to extract:
 - titleOfMeeting
@@ -348,7 +355,7 @@ Transcript:
 {current_transcript}
 ---
 
-Provide ONLY the JSON object in your response. Do not include any other text.
+Provide ONLY the JSON object in your response. Do not include any other text or markdown formatting.
 """
                 response = model.generate_content(prompt_structured, request_options={"timeout": 600})
                 
@@ -468,4 +475,3 @@ st.markdown(
     "Always verify the accuracy of AI-generated transcriptions and minutes."
 )
 st.markdown("Created by Dave Maher | For Lee Valley Golf Club internal use.")
-
