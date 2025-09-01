@@ -254,14 +254,10 @@ if mode == "Upload audio file":
         audio_bytes = uploaded_audio
 
 elif mode == "Record using microphone":
-    st.info("Click the microphone icon below to start recording. Click the stop icon when you're finished.")
-    # This now uses the correct audio recorder widget from Streamlit.
-    recorded_audio = st.audio_recorder(
-        "🎙️ Record Meeting Audio",
-        key="audio_recorder_main"
-    )
+    st.info("Recording functionality may vary by browser. Please use the upload feature for best results.")
+    recorded_audio = st.audio_input("🎙️ Click the microphone to record, then click again to stop and process.", key="audio_recorder_main")
     if recorded_audio:
-        # The recorder widget returns the audio data directly as bytes.
+        st.audio(recorded_audio, format="audio/wav")
         audio_bytes = recorded_audio
 
 # --- Transcription and Analysis ---
@@ -476,6 +472,7 @@ st.markdown(
     "Always verify the accuracy of AI-generated transcriptions and minutes."
 )
 st.markdown("Created by Dave Maher | For Lee Valley Golf Club internal use.")
+
 
 
 
