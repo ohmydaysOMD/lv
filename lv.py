@@ -197,7 +197,7 @@ if not st.session_state.password_verified:
 # --- Sidebar ---
 with st.sidebar:
     st.image(logo_base64, use_container_width=True)
-    st.title("📒 LVGC Minutes Recap")
+    st.title("📒 LVGC Minutes")
     
     if st.button("🔄 Restart Session"):
         keys_to_clear = ['transcript', 'structured', 'minutes', 'narrative', 'keypoints_summary']
