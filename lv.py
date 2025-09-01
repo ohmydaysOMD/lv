@@ -226,7 +226,7 @@ with st.sidebar:
 # --- Main UI Header ---
 col1, col2 = st.columns([1, 6])
 with col1:
-    st.image(logo_url, width=80)
+    st.image(logo_url, width=180)
 with col2:
     st.title("📝 LVGC Minutes Recap")
     st.markdown("#### Lee Valley Golf Club Minute-AI (MAI) Generator")
