@@ -175,7 +175,7 @@ except Exception as e:
 st.set_page_config(page_title="LVGC Minutes", layout="wide", page_icon="https://www.leevalleygcc.ie/wp-content/themes/leevalley/favicon.ico")
 
 # --- Logo Data ---
-logo_url = "https://pbs.twimg.com/media/CgL9fy5W8AAHONA.jpg"
+logo_url = "https://kerryseniorgolf.com/wp-content/uploads/2022/02/lee-valley-golf-country-club-logo.png"
 
 # --- Password protection ---
 if "password_verified" not in st.session_state:
