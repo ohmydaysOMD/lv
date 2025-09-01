@@ -175,7 +175,7 @@ except Exception as e:
 st.set_page_config(page_title="LVGC Minutes", layout="wide", page_icon="https://www.leevalleygcc.ie/wp-content/themes/leevalley/favicon.ico")
 
 # --- Logo Data ---
-logo_url = "https://kerryseniorgolf.com/wp-content/uploads/2022/02/lee-valley-golf-country-club-logo.png"
+logo_url = "https://pbs.twimg.com/media/CgL9fy5W8AAHONA.jpg"
 
 # --- Password protection ---
 if "password_verified" not in st.session_state:
@@ -226,7 +226,7 @@ with st.sidebar:
 # --- Main UI Header ---
 col1, col2 = st.columns([1, 6])
 with col1:
-    st.image(logo_url, width=180)
+    st.image(logo_url, width=80)
 with col2:
     st.title("📝 LVGC Minutes Recap")
     st.markdown("#### Lee Valley Golf Club Minute-AI (MAI) Generator")
@@ -254,13 +254,14 @@ if mode == "Upload audio file":
         audio_bytes = uploaded_audio
 
 elif mode == "Record using microphone":
-    # Using st.audio_input as a placeholder for a recording component
-    st.info("Recording functionality is browser-dependent. Please use the upload feature for best results.")
-    # This component is not a standard Streamlit widget, you might need a custom component for robust recording.
-    # For now, this is a conceptual placeholder.
-    recorded_audio = st.file_uploader("Upload your recording here after you finish.", type=["wav", "mp3", "m4a"])
+    st.info("Click the microphone icon below to start recording. Click the stop icon when you're finished.")
+    # This now uses the correct audio recorder widget from Streamlit.
+    recorded_audio = st.audio_recorder(
+        "🎙️ Record Meeting Audio",
+        key="audio_recorder_main"
+    )
     if recorded_audio:
-        st.audio(recorded_audio)
+        # The recorder widget returns the audio data directly as bytes.
         audio_bytes = recorded_audio
 
 # --- Transcription and Analysis ---
@@ -475,6 +476,7 @@ st.markdown(
     "Always verify the accuracy of AI-generated transcriptions and minutes."
 )
 st.markdown("Created by Dave Maher | For Lee Valley Golf Club internal use.")
+
 
 
 
