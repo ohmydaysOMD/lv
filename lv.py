@@ -218,7 +218,7 @@ st.markdown("### 📤 Record or Upload Meeting Audio")
 # --- Input Method Selection ---
 mode = st.radio(
     "Choose input method:",
-    ["Upload audio file", "Record using microphone"],
+    ["Record using microphone", "Upload audio file"],
     horizontal=True,
     key="input_mode_radio"
 )
@@ -457,3 +457,5 @@ st.markdown(
     "Always verify the accuracy of AI-generated transcriptions and minutes."
 )
 st.markdown("Created by Dave Maher | For Lee Valley Golf Club internal use.")
+
+
