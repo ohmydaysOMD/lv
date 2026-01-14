@@ -190,7 +190,8 @@ def create_minutes_docx(content):
 try:
     # It's recommended to use st.secrets for API keys
     genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
-    model = genai.GenerativeModel(model_name='gemini-1.5-flash')
+    # UPDATED: gemini-1.5-flash is deprecated. Switched to gemini-3-flash-preview.
+    model = genai.GenerativeModel(model_name='gemini-3-flash-preview')
 except KeyError:
     st.error("GEMINI_API_KEY not found in Streamlit secrets. Please add it to continue.")
     st.stop()
@@ -247,7 +248,7 @@ with st.sidebar:
     if st.button("Created by Dave Maher", key="creator_button_sidebar"):
         st.sidebar.write("This application's intellectual property belongs to Dave Maher.")
     st.markdown("---")
-    st.markdown("Version: 2.2.0 (LVGC)")
+    st.markdown("Version: 2.3.0 (LVGC)")
 
 # --- Main UI Header ---
 col1, col2 = st.columns([1, 6])
