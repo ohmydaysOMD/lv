@@ -51,19 +51,27 @@ def generate_golf_club_minutes(structured):
     date_circulated = get(structured.get("dateCirculated"))
     circulation = get(structured.get("circulation"))
 
-    # --- Meeting body items ---
-    training = format_items(structured.get("training", []))
-    health_safety = format_items(structured.get("healthAndSafety", []))
-    finance = format_items(structured.get("finance", []))
-    issues_risk_discipline = format_items(structured.get("issuesRiskDiscipline", []))
+    # --- Meeting body items (Updated to new topic list) ---
+    welcome = format_items(structured.get("welcome", []))
+    # Apologies is handled in the header, but if there are specific notes on it, they might be here.
+    # usually Apologies is just a list of names, which is handled above.
+    condolences = format_items(structured.get("condolences", []))
+    correspondence = format_items(structured.get("correspondence", []))
+    captains_report = format_items(structured.get("captainsReport", []))
+    sub_committee = format_items(structured.get("subCommitteeUpdate", []))
+    comp_sec_report = format_items(structured.get("competitionSecretaryReport", []))
+    handicapping = format_items(structured.get("handicapping", []))
+    treasurer_report = format_items(structured.get("treasurersReport", []))
     teams = format_items(structured.get("teams", []))
-    projects = format_items(structured.get("projects", []))
-    competitions = format_items(structured.get("competitions", []))
-    comments = format_items(structured.get("comments", []))
+    membership = format_items(structured.get("membership", []))
+    mixed_fours = format_items(structured.get("mixedFours", []))
+    junior = format_items(structured.get("junior", []))
+    governance = format_items(structured.get("governance", []))
+    course_dev = format_items(structured.get("courseDevelopment", []))
+    sponsorship = format_items(structured.get("sponsorship", []))
     aob = format_items(structured.get("anyOtherBusiness", []))
-    captains_comments = format_items(structured.get("captainsClosingComments", []))
 
-    # --- Compose the minutes string (Updated with defaults for key fields) ---
+    # --- Compose the minutes string (Updated with new headers) ---
     template = f"""
 Title of Meeting: {title or 'Lee Valley Mens Club Committee Meeting'}
 Purpose of Meeting: {purpose}
@@ -85,35 +93,53 @@ ________________________________________
 MEETING MINUTES & ACTIONS
 ________________________________________
 
-1. Training (First Aid, Programmes, etc.)
-{training}
+1. Welcome
+{welcome}
 ________________________________________
-2. Health and Safety
-{health_safety}
+2. Condolences
+{condolences}
 ________________________________________
-3. Finance (Status, Projections)
-{finance}
+3. Correspondence
+{correspondence}
 ________________________________________
-4. Issues, Risk, Discipline
-{issues_risk_discipline}
+4. Captain’s Report
+{captains_report}
 ________________________________________
-5. Teams (Purcell, Bruen, etc.)
+5. Sub-Committee Update
+{sub_committee}
+________________________________________
+6. Competition Secretary Report
+{comp_sec_report}
+________________________________________
+7. Handicapping
+{handicapping}
+________________________________________
+8. Treasurer’s Report
+{treasurer_report}
+________________________________________
+9. Teams
 {teams}
 ________________________________________
-6. Projects (Defib, Simulator, 5 Year Vision)
-{projects}
+10. Membership
+{membership}
 ________________________________________
-7. Competitions (Weekly, Matchplays)
-{competitions}
+11. Mixed Fours
+{mixed_fours}
 ________________________________________
-8. Comments
-{comments}
+12. Junior
+{junior}
 ________________________________________
-9. Any Other Business (AOB)
+13. Governance
+{governance}
+________________________________________
+14. Course Development
+{course_dev}
+________________________________________
+15. Sponsorship
+{sponsorship}
+________________________________________
+16. Any Other Business (AOB)
 {aob}
-________________________________________
-10. Captain's Closing Comments
-{captains_comments}
 """
     return template.strip()
 
@@ -221,7 +247,7 @@ with st.sidebar:
     if st.button("Created by Dave Maher", key="creator_button_sidebar"):
         st.sidebar.write("This application's intellectual property belongs to Dave Maher.")
     st.markdown("---")
-    st.markdown("Version: 2.1.0 (LVGC)")
+    st.markdown("Version: 2.2.0 (LVGC)")
 
 # --- Main UI Header ---
 col1, col2 = st.columns([1, 6])
@@ -317,13 +343,13 @@ if "transcript" in st.session_state:
         with st.spinner("Generating structured meeting minutes..."):
             try:
                 current_transcript = st.session_state['transcript']
-                # UPDATED PROMPT: More explicit instructions to prevent hallucination.
+                # UPDATED PROMPT: Updated to match the new topic list
                 prompt_structured = f"""
 You are an AI assistant for Lee Valley Golf Club meetings.
 Your task is to extract detailed, structured information from the provided meeting transcript and return a single JSON object.
 Use UK English. Format all dates as DD/MM/YYYY and all times as HH:MM (24 hour).
 
-CRITICAL INSTRUCTION: Only extract information explicitly present in the transcript. If a topic or key is not mentioned AT ALL, you MUST use an empty list `[]` for its value. Do NOT invent, infer, or fabricate any information. For example, if 'finance' is not discussed, the value for the 'finance' key must be `[]`.
+CRITICAL INSTRUCTION: Only extract information explicitly present in the transcript. If a topic or key is not mentioned AT ALL, you MUST use an empty list `[]` for its value. Do NOT invent, infer, or fabricate any information.
 
 Keys to extract:
 - titleOfMeeting
@@ -336,16 +362,24 @@ Keys to extract:
 - dateCirculated
 - circulation (string describing who gets the minutes)
 - nextMeetingDateTime
-- training (list of key points/actions)
-- healthAndSafety (list of key points/actions)
-- finance (list of key points/actions)
-- issuesRiskDiscipline (list of key points/actions)
-- teams (list of key points/actions, e.g., Purcell, Bruen)
-- projects (list of key points/actions, e.g., Defib, Simulator, 5 Year Vision)
-- competitions (list of key points/actions, e.g., weekly, matchplays)
-- comments (list of general comments made)
-- anyOtherBusiness (list of AOB points)
-- captainsClosingComments (list of points)
+
+Topic Keys (Extract points/actions for these specific topics):
+- welcome (list of points)
+- condolences (list of points)
+- correspondence (list of points)
+- captainsReport (list of points)
+- subCommitteeUpdate (list of points)
+- competitionSecretaryReport (list of points)
+- handicapping (list of points)
+- treasurersReport (list of points)
+- teams (list of points)
+- membership (list of points)
+- mixedFours (list of points)
+- junior (list of points)
+- governance (list of points)
+- courseDevelopment (list of points)
+- sponsorship (list of points)
+- anyOtherBusiness (list of points)
 
 Transcript:
 ---
@@ -472,8 +506,3 @@ st.markdown(
     "Always verify the accuracy of AI-generated transcriptions and minutes."
 )
 st.markdown("Created by Dave Maher | For Lee Valley Golf Club internal use.")
-
-
-
-
-
