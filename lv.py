@@ -53,8 +53,7 @@ def generate_golf_club_minutes(structured):
 
     # --- Meeting body items (Updated to new topic list) ---
     welcome = format_items(structured.get("welcome", []))
-    # Apologies is handled in the header, but if there are specific notes on it, they might be here.
-    # usually Apologies is just a list of names, which is handled above.
+    # Apologies is handled in the header
     condolences = format_items(structured.get("condolences", []))
     correspondence = format_items(structured.get("correspondence", []))
     captains_report = format_items(structured.get("captainsReport", []))
@@ -63,8 +62,17 @@ def generate_golf_club_minutes(structured):
     handicapping = format_items(structured.get("handicapping", []))
     treasurer_report = format_items(structured.get("treasurersReport", []))
     teams = format_items(structured.get("teams", []))
+    
+    # Item 10: PRO
+    pro = format_items(structured.get("pro", []))
+    
+    # Item 11: Membership (Moved up)
     membership = format_items(structured.get("membership", []))
+
+    # Item 12: Mixed Fours (Moved down)
     mixed_fours = format_items(structured.get("mixedFours", []))
+    
+    # Shifted items
     junior = format_items(structured.get("junior", []))
     governance = format_items(structured.get("governance", []))
     course_dev = format_items(structured.get("courseDevelopment", []))
@@ -120,25 +128,28 @@ ________________________________________
 9. Teams
 {teams}
 ________________________________________
-10. Membership
+10. PRO
+{pro}
+________________________________________
+11. Membership
 {membership}
 ________________________________________
-11. Mixed Fours
+12. Mixed Fours
 {mixed_fours}
 ________________________________________
-12. Junior
+13. Junior
 {junior}
 ________________________________________
-13. Governance
+14. Governance
 {governance}
 ________________________________________
-14. Course Development
+15. Course Development
 {course_dev}
 ________________________________________
-15. Sponsorship
+16. Sponsorship
 {sponsorship}
 ________________________________________
-16. Any Other Business (AOB)
+17. Any Other Business (AOB)
 {aob}
 """
     return template.strip()
@@ -374,6 +385,7 @@ Topic Keys (Extract points/actions for these specific topics):
 - handicapping (list of points)
 - treasurersReport (list of points)
 - teams (list of points)
+- pro (list of points)
 - membership (list of points)
 - mixedFours (list of points)
 - junior (list of points)
